@@ -1,10 +1,26 @@
-#!/bin/bash
+#!/bin/bash 
+set -e
 
-FILE="$1"
+MODE="$1"
+INPUT_FILES="$2"
+echo $MODE
 
-echo "$FILE"
-docker run -it -d --gpus all --rm --volume "$FILE":"$FILE" --name neural_object_representation_generator neural_object_representation_generator
-docker exec -it neural_object_representation_generator python3 main_nerf.py "$FILE" --workspace trial_nerf -O
-docker cp neural_object_representation_generator:/opt/neural_object_representation_generator/torch-ngp/trial_nerf/results .
-docker cp neural_object_representation_generator:/opt/neural_object_representation_generator/torch-ngp/trial_nerf/meshes .
-docker stop neural_object_representation_generator
+if [ "$MODE" == "nerf" ]; then
+    echo "Running NERF"
+    mkdir -p output/nerf
+    docker run -it -d --gpus all --rm --volume "$INPUT_FILES":"$INPUT_FILES" --name instant_ngp_tool instant_ngp
+    docker exec -it instant_ngp_tool python3 main_nerf.py "$INPUT_FILES" --workspace trial_nerf -O
+    docker cp instant_ngp_tool:/opt/instant_ngp/torch-ngp/trial_nerf/results output/nerf/
+    docker cp instant_ngp_tool:/opt/instant_ngp/torch-ngp/trial_nerf/meshes output/nerf/
+    docker stop instant_ngp_tool
+elif [ "$MODE" == "sdf" ]; then
+    echo "Running SDF"
+    mkdir -p output/sdf
+    docker run -it -d --gpus all --rm --volume "$INPUT_FILES":"$INPUT_FILES" --name instant_ngp_tool instant_ngp
+    docker exec -it instant_ngp_tool python3 main_sdf.py "$INPUT_FILES" --workspace trial_sdf
+    docker cp instant_ngp_tool:/opt/instant_ngp/torch-ngp/trial_sdf/results output/sdf/
+    docker stop instant_ngp_tool
+else
+    echo "Please specify either 'nerf' or 'sdf'"
+    exit 1
+fi
