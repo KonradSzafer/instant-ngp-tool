@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # download example data
 git clone https://github.com/NVlabs/instant-ngp
 mkdir -p example_data
