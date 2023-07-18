@@ -12,7 +12,7 @@ if [ "$MODE" == "nerf" ]; then
     docker exec -it instant_ngp_tool python3 main_nerf.py "$INPUT_FILES" --workspace trial_nerf -O
     docker cp instant_ngp_tool:/opt/instant_ngp/torch-ngp/trial_nerf/results output/nerf/
     docker cp instant_ngp_tool:/opt/instant_ngp/torch-ngp/trial_nerf/meshes output/nerf/
-    docker stop instant_ngp_tool
+#    docker stop instant_ngp_tool
 elif [ "$MODE" == "sdf" ]; then
     echo "Running SDF"
     mkdir -p output/sdf
